@@ -3,15 +3,19 @@ import { StyleSheet, View, Text } from 'react-native';
 import JellyButton from 'react-native-jelly-button';
 
 export default function App() {
-  const [result, setResult] = React.useState<number | undefined>();
-
-  React.useEffect(() => {
-    JellyButton.multiply(3, 7).then(setResult);
-  }, []);
-
   return (
     <View style={styles.container}>
-      <Text>Result: {result}</Text>
+      <JellyButton
+        height={50}
+        width={200}
+        gradientStart={'#219D72'}
+        gradientEnd={'#C3E87F'}
+        borderRadius={50}
+      >
+        <View>
+          <Text style={{ color: 'white', fontSize: 20 }}>{'Click me'}</Text>
+        </View>
+      </JellyButton>
     </View>
   );
 }

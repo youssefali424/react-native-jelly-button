@@ -32,7 +32,12 @@
   "keywords": [
     "react-native",
     "ios",
-    "android"
+    "android",
+    "jelly button",
+    "jelly",
+    "button",
+    "react-native-jelly-button",
+    "react native jelly button"
   ],
   "repository": "https://github.com/youssefali424/react-native-jelly-button",
   "author": "youssef ali <youssefAliGaber@gmail.com> (https://github.com/youssefali424)",
@@ -58,13 +63,21 @@
     "pod-install": "^0.1.0",
     "prettier": "^2.0.5",
     "react": "16.11.0",
-    "react-native": "0.62.2",
+    "react-native": "0.63.0",
     "release-it": "^13.5.8",
-    "typescript": "^3.8.3"
+    "typescript": "^3.8.3",
+    "react-native-reanimated": "^1.13.0",
+    "react-native-redash": "^14.2.3",
+    "react-native-svg": "^12.1.0",
+    "react-native-gesture-handler": "^1.7.0"
   },
   "peerDependencies": {
     "react": "*",
-    "react-native": "*"
+    "react-native": "*",
+    "react-native-reanimated": "^1.13.0",
+    "react-native-redash": "^14.2.3",
+    "react-native-svg": "^12.1.0",
+    "react-native-gesture-handler": "^1.7.0"
   },
   "jest": {
     "preset": "react-native",
@@ -119,7 +132,10 @@
       ]
     }
   },
-  "eslintIgnore": ["node_modules/", "lib/"],
+  "eslintIgnore": [
+    "node_modules/",
+    "lib/"
+  ],
   "prettier": {
     "quoteProps": "consistent",
     "singleQuote": true,
@@ -130,6 +146,10 @@
   "@react-native-community/bob": {
     "source": "src",
     "output": "lib",
-    "targets": ["commonjs", "module", "typescript"]
+    "targets": [
+      "commonjs",
+      "module",
+      "typescript"
+    ]
   }
 }
