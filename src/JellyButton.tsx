@@ -11,6 +11,9 @@ import Animated, {
   or,
   divide,
   abs,
+  useCode,
+  onChange,
+  call,
 } from 'react-native-reanimated';
 import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { StyleSheet } from 'react-native';
@@ -40,6 +43,7 @@ interface AnimatedButtonProps {
   gradientEnd: string;
   gradientStartOpacity?: number;
   gradientEndOpacity?: number;
+  onPress?: () => void;
 }
 const JellyButton: React.FC<AnimatedButtonProps> = ({
   borderRadius: borderRadiusProp = 0,
@@ -50,6 +54,7 @@ const JellyButton: React.FC<AnimatedButtonProps> = ({
   animateGradient = false,
   gradientEndOpacity = 1,
   gradientStartOpacity = 1,
+  onPress,
   children,
 }) => {
   const { gestureHandler, position, state } = useTapGestureHandler();
@@ -381,6 +386,17 @@ const JellyButton: React.FC<AnimatedButtonProps> = ({
     y1: true,
     x2: true,
   });
+  useCode(
+    () =>
+      onChange(
+        state,
+        cond(
+          eq(state, State.END),
+          call([], () => onPress && onPress())
+        )
+      ),
+    []
+  );
   return (
     <TapGestureHandler {...gestureHandler}>
       <Animated.View
