@@ -38,6 +38,7 @@ import JellyButton from "react-native-jelly-button";
       gradientEnd: string; // color
       gradientStartOpacity?: number; //defualt 1, a value from 0 to 1
       gradientEndOpacity?: number; //defualt 1, a value from 0 to 1
+      onPress?: () => void;
 ```
       
 ## Contributing
