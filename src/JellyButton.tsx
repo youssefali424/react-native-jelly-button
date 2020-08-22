@@ -12,10 +12,9 @@ import Animated, {
   divide,
   abs,
 } from 'react-native-reanimated';
-// import {moveTo, lineTo, close} from '_src/LiquidSwipe/SVGHelpers';
-import Svg, {Path, Defs, LinearGradient, Stop} from 'react-native-svg';
-import {StyleSheet} from 'react-native';
-import {TapGestureHandler, State} from 'react-native-gesture-handler';
+import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
+import { StyleSheet } from 'react-native';
+import { TapGestureHandler, State } from 'react-native-gesture-handler';
 import React from 'react';
 import {
   useTapGestureHandler,
@@ -53,7 +52,7 @@ const JellyButton: React.FC<AnimatedButtonProps> = ({
   gradientStartOpacity = 1,
   children,
 }) => {
-  const {gestureHandler, position, state} = useTapGestureHandler();
+  const { gestureHandler, position, state } = useTapGestureHandler();
 
   // const buttonWidth = 200;
   // const buttonHeight = 100;
@@ -78,10 +77,10 @@ const JellyButton: React.FC<AnimatedButtonProps> = ({
   const val = cond(
     or(eq(state, State.BEGAN), eq(state, State.ACTIVE)),
     sub(curveHeight, multiply(curveHeight, decrease)),
-    0,
+    0
   );
 
-  const y = withSpringTransition(val, {damping: 4, stiffness: 250}, 5, state);
+  const y = withSpringTransition(val, { damping: 4, stiffness: 250 }, 5, state);
   const borderMargin = borderRadius * 0.5;
   const topEdgeY = (cy: number, xStart: number, xEnd: number) =>
     cond(
@@ -89,11 +88,11 @@ const JellyButton: React.FC<AnimatedButtonProps> = ({
         or(eq(state, State.BEGAN), eq(state, State.ACTIVE)),
         and(
           greaterThan(x, xStart - borderMargin),
-          lessThan(x, xEnd + borderMargin),
-        ),
+          lessThan(x, xEnd + borderMargin)
+        )
       ),
       add(cy, minus(y)),
-      cy,
+      cy
     );
   const bottomEdgeY = (cy: number, xStart: number, xEnd: number) => {
     return cond(
@@ -101,23 +100,23 @@ const JellyButton: React.FC<AnimatedButtonProps> = ({
         or(eq(state, State.BEGAN), eq(state, State.ACTIVE)),
         and(
           greaterThan(x, xStart - borderMargin),
-          lessThan(x, xEnd + borderMargin),
-        ),
+          lessThan(x, xEnd + borderMargin)
+        )
       ),
       add(cy, y),
-      cy,
+      cy
     );
   };
   const commands: Animated.Node<string>[] = [];
   const curveStart = cond(
     lessThan(x, curveWidth / 2),
     borderRadius / 2,
-    sub(x, curveWidth / 2),
+    sub(x, curveWidth / 2)
   );
   const curveEnd = cond(
     greaterThan(x, width - curveWidth),
     width - borderRadius,
-    add(curveStart, curveWidth),
+    add(curveStart, curveWidth)
   );
   moveTo(commands, 0, curveHeight + borderRadius);
   const curvesTopLeft = arcToBezier({
@@ -131,7 +130,7 @@ const JellyButton: React.FC<AnimatedButtonProps> = ({
     largeArcFlag: 0,
     sweepFlag: 1,
   });
-  let finalPointTopLeft: Point = {x: 0, y: curveHeight + borderRadius};
+  let finalPointTopLeft: Point = { x: 0, y: curveHeight + borderRadius };
   curvesTopLeft.forEach((val) => {
     finalPointTopLeft = {
       x: val.x2,
@@ -170,7 +169,7 @@ const JellyButton: React.FC<AnimatedButtonProps> = ({
           y: cond(
             greaterThan(x, width - borderRadius * 2),
             add(curvesTopRight[curvesTopRight.length - 1].y1, y),
-            curvesTopRight[curvesTopRight.length - 1].y1,
+            curvesTopRight[curvesTopRight.length - 1].y1
           ),
         }
       : {
@@ -178,7 +177,7 @@ const JellyButton: React.FC<AnimatedButtonProps> = ({
           y: cond(
             greaterThan(x, width - borderRadius * 2),
             add(curveHeight, minus(y)),
-            curveHeight,
+            curveHeight
           ),
         };
   curveTo(
@@ -198,7 +197,7 @@ const JellyButton: React.FC<AnimatedButtonProps> = ({
       },
     },
     finalPointTopLeft,
-    finalPointTopRight,
+    finalPointTopRight
   );
 
   curvesTopRight.forEach((val, i) => {
@@ -239,10 +238,10 @@ const JellyButton: React.FC<AnimatedButtonProps> = ({
           y: cond(
             and(
               greaterThan(x, width - borderRadius * 2),
-              or(eq(state, State.BEGAN), eq(state, State.ACTIVE)),
+              or(eq(state, State.BEGAN), eq(state, State.ACTIVE))
             ),
             add(curvesBottomRight[curvesBottomRight.length - 1].y1, y),
-            curvesBottomRight[curvesBottomRight.length - 1].y1,
+            curvesBottomRight[curvesBottomRight.length - 1].y1
           ),
         }
       : {
@@ -250,7 +249,7 @@ const JellyButton: React.FC<AnimatedButtonProps> = ({
           y: cond(
             greaterThan(x, width - borderRadius * 2),
             add(height, y),
-            height,
+            height
           ),
         };
   curvesBottomRight.forEach((val, i) => {
@@ -289,10 +288,10 @@ const JellyButton: React.FC<AnimatedButtonProps> = ({
             and(
               lessThan(x, borderRadius * 2),
               or(eq(state, State.BEGAN), eq(state, State.ACTIVE)),
-              greaterThan(y, 0),
+              greaterThan(y, 0)
             ),
             add(curvesBottomLeft[curvesBottomLeft.length - 1].y1, y),
-            curvesBottomLeft[curvesBottomLeft.length - 1].y1,
+            curvesBottomLeft[curvesBottomLeft.length - 1].y1
           ),
         }
       : {
@@ -316,15 +315,15 @@ const JellyButton: React.FC<AnimatedButtonProps> = ({
         y: cond(
           and(
             lessThan(x, borderRadius * 1.5),
-            or(eq(state, State.BEGAN), eq(state, State.ACTIVE)),
+            or(eq(state, State.BEGAN), eq(state, State.ACTIVE))
           ),
           add(height, y),
-          height,
+          height
         ),
       },
     },
     finalPointBottomRight,
-    finalPointBottomLeft,
+    finalPointBottomLeft
   );
   // lineTo(commands, borderRadius, height);
   curvesBottomLeft.forEach((val, i) => {
@@ -335,7 +334,7 @@ const JellyButton: React.FC<AnimatedButtonProps> = ({
         y: bottomEdgeY(
           val.y1,
           Math.min(val.x2, val.x1),
-          Math.max(val.x2, val.x1, xStart),
+          Math.max(val.x2, val.x1, xStart)
         ),
       },
       c1: {
@@ -343,7 +342,7 @@ const JellyButton: React.FC<AnimatedButtonProps> = ({
         y: bottomEdgeY(
           val.y2,
           Math.min(val.x1, val.x),
-          Math.max(val.x1, val.x, xStart / 2),
+          Math.max(val.x1, val.x, xStart / 2)
         ),
       },
       c2: {
@@ -361,18 +360,18 @@ const JellyButton: React.FC<AnimatedButtonProps> = ({
       or(eq(state, State.BEGAN), eq(state, State.ACTIVE)),
       multiply(
         minus(sub(position.y, buttonHeight / 2)),
-        divide(y, curveHeight),
+        divide(y, curveHeight)
       ),
-      0,
+      0
     ),
-    {damping: 4, stiffness: 250},
+    { damping: 4, stiffness: 250 },
     5,
-    state,
+    state
   );
   const offset = cond(
     lessThan(translateY, 0),
     sub(1, divide(y, curveHeight)),
-    add(1, divide(y, curveHeight)),
+    add(1, divide(y, curveHeight))
   );
   const LinearGradientStop = Animated.createAnimatedComponent(LinearGradient);
   Animated.addWhitelistedNativeProps({
@@ -389,17 +388,19 @@ const JellyButton: React.FC<AnimatedButtonProps> = ({
           width: buttonWidth,
           height: buttonHeight,
           // backgroundColor: 'blue',
-        }}>
+        }}
+      >
         <Svg
           style={[
             StyleSheet.absoluteFill,
             {
               height: buttonHeight + curveHeight * 2,
-              transform: [{translateY: -curveHeight}],
+              transform: [{ translateY: -curveHeight }],
               borderRadius: 50,
             },
           ]}
-          viewBox={`0 0 ${buttonWidth} ${buttonHeight + curveHeight * 2}`}>
+          viewBox={`0 0 ${buttonWidth} ${buttonHeight + curveHeight * 2}`}
+        >
           <Defs>
             {animateGradient ? (
               <LinearGradientStop id="grad" x1="0" y1="0" x2="0" y2={offset}>
@@ -429,7 +430,7 @@ const JellyButton: React.FC<AnimatedButtonProps> = ({
               </LinearGradient>
             )}
           </Defs>
-          <AnimatedPath {...{d}} fill="url(#grad)" />
+          <AnimatedPath {...{ d }} fill="url(#grad)" />
         </Svg>
         <Animated.View
           style={[
@@ -437,9 +438,10 @@ const JellyButton: React.FC<AnimatedButtonProps> = ({
             {
               justifyContent: 'center',
               alignItems: 'center',
-              transform: [{translateY}],
+              transform: [{ translateY }],
             },
-          ]}>
+          ]}
+        >
           {children}
         </Animated.View>
       </Animated.View>

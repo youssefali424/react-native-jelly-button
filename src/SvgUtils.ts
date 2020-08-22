@@ -7,18 +7,18 @@ import Animated, {
   sqrt,
   pow,
 } from 'react-native-reanimated';
-import {string, atan2} from 'react-native-redash';
+import { string, atan2 } from 'react-native-redash';
 
 const TAU = Math.PI * 2;
 
 const mapToEllipse = (
-  {x, y}: {x: number; y: number},
+  { x, y }: { x: number; y: number },
   rx: number,
   ry: number,
   cosphi: number,
   sinphi: number,
   centerx: number,
-  centery: number,
+  centery: number
 ) => {
   x *= rx;
   y *= ry;
@@ -29,7 +29,7 @@ const mapToEllipse = (
   return {
     x: xp + centerx,
     y: yp + centery,
-  } as {x: number; y: number};
+  } as { x: number; y: number };
 };
 
 const approxUnitArc = (ang1: number, ang2: number) => {
@@ -91,7 +91,7 @@ const getArcCenter = (
   sinphi: number,
   cosphi: number,
   pxp: number,
-  pyp: number,
+  pyp: number
 ) => {
   const rxsq = Math.pow(rx, 2);
   const rysq = Math.pow(ry, 2);
@@ -192,7 +192,7 @@ const arcToBezier = ({
     sinphi,
     cosphi,
     pxp,
-    pyp,
+    pyp
   );
 
   // If 'ang2' == 90.0000000001, then `ratio` will evaluate to
@@ -214,35 +214,35 @@ const arcToBezier = ({
   }
 
   return curves.map((curve) => {
-    const {x: x1, y: y1} = mapToEllipse(
+    const { x: x1, y: y1 } = mapToEllipse(
       curve[0],
       rx,
       ry,
       cosphi,
       sinphi,
       centerx,
-      centery,
+      centery
     );
-    const {x: x2, y: y2} = mapToEllipse(
+    const { x: x2, y: y2 } = mapToEllipse(
       curve[1],
       rx,
       ry,
       cosphi,
       sinphi,
       centerx,
-      centery,
+      centery
     );
-    const {x, y} = mapToEllipse(
+    const { x, y } = mapToEllipse(
       curve[2],
       rx,
       ry,
       cosphi,
       sinphi,
       centerx,
-      centery,
+      centery
     );
 
-    return {x1, y1, x2, y2, x, y};
+    return { x1, y1, x2, y2, x, y };
   });
 };
 
@@ -259,25 +259,25 @@ export const curveTo = (
   commands: Animated.Node<string>[],
   c: Curve,
   previous: Point,
-  next: Point,
+  next: Point
 ) => {
-  const {x: cpsX, y: cpsY} = controlPoint(c.c1, previous, c.c2);
-  const {x: cpeX, y: cpeY} = controlPoint(c.c2, c.c1, next, true);
+  const { x: cpsX, y: cpsY } = controlPoint(c.c1, previous, c.c2);
+  const { x: cpeX, y: cpeY } = controlPoint(c.c2, c.c1, next, true);
   commands.push(string`C${cpsX},${cpsY} ${cpeX},${cpeY} ${c.c2.x},${c.c2.y} `);
 };
 export const curveToNoSmooth = (
   commands: Animated.Node<string>[],
-  c: Curve,
+  c: Curve
 ) => {
   commands.push(
-    string`C${c.to.x},${c.to.y} ${c.c1.x},${c.c1.y} ${c.c2.x},${c.c2.y} `,
+    string`C${c.to.x},${c.to.y} ${c.c1.x},${c.c1.y} ${c.c2.x},${c.c2.y} `
   );
 };
 const controlPoint = (
   current: Point,
   previous: Point,
   next: Point,
-  reverse?: boolean,
+  reverse?: boolean
 ) => {
   const p = previous || current;
   const n = next || current;
@@ -287,7 +287,7 @@ const controlPoint = (
   const length = multiply(o.length, smoothing);
   const x = add(current.x, multiply(cos(angle), length));
   const y = add(current.y, multiply(sin(angle), length));
-  return {x, y} as Point;
+  return { x, y } as Point;
 };
 export const line = (pointA: Point, pointB: Point) => {
   const lengthX = sub(pointB.x, pointA.x);
@@ -300,7 +300,7 @@ export const line = (pointA: Point, pointB: Point) => {
 export const moveTo = (
   commands: Animated.Node<string>[],
   x: Animated.Adaptable<number>,
-  y: Animated.Adaptable<number>,
+  y: Animated.Adaptable<number>
 ) => {
   commands.push(string`M${x},${y} `);
 };
@@ -308,7 +308,7 @@ export const moveTo = (
 export const lineTo = (
   commands: Animated.Node<string>[],
   x: Animated.Adaptable<number>,
-  y: Animated.Adaptable<number>,
+  y: Animated.Adaptable<number>
 ) => {
   commands.push(string`L${x},${y} `);
 };
