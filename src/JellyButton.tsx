@@ -386,7 +386,6 @@ const JellyButton: React.FC<AnimatedButtonProps> = ({
     stopOpacity: true,
     x1: true,
     y1: true,
-    x2: true,
   });
   useCode(
     () =>
