@@ -44,6 +44,7 @@ interface AnimatedButtonProps {
   gradientStartOpacity?: number;
   gradientEndOpacity?: number;
   onPress?: () => void;
+  gradientHorizontal?: boolean;
 }
 const JellyButton: React.FC<AnimatedButtonProps> = ({
   borderRadius: borderRadiusProp = 0,
@@ -56,6 +57,7 @@ const JellyButton: React.FC<AnimatedButtonProps> = ({
   gradientStartOpacity = 1,
   onPress,
   children,
+  gradientHorizontal = false,
 }) => {
   const { gestureHandler, position, state } = useTapGestureHandler();
 
@@ -419,7 +421,13 @@ const JellyButton: React.FC<AnimatedButtonProps> = ({
         >
           <Defs>
             {animateGradient ? (
-              <LinearGradientStop id="grad" x1="0" y1="0" x2="0" y2={offset}>
+              <LinearGradientStop
+                id="grad"
+                x1="0"
+                y1="0"
+                x2={gradientHorizontal ? offset : '0'}
+                y2={gradientHorizontal ? '0' : offset}
+              >
                 <Stop
                   offset="0"
                   stopColor={gradientStart}
@@ -432,7 +440,13 @@ const JellyButton: React.FC<AnimatedButtonProps> = ({
                 />
               </LinearGradientStop>
             ) : (
-              <LinearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+              <LinearGradient
+                id="grad"
+                x1="0"
+                y1="0"
+                x2={gradientHorizontal ? '1' : '0'}
+                y2={gradientHorizontal ? '0' : '1'}
+              >
                 <Stop
                   offset="0"
                   stopColor={gradientStart}

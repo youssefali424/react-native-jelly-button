@@ -39,6 +39,7 @@ import JellyButton from "react-native-jelly-button";
       gradientStartOpacity?: number; //defualt 1, a value from 0 to 1
       gradientEndOpacity?: number; //defualt 1, a value from 0 to 1
       onPress?: () => void;
+      gradientHorizontal?: boolean;//if the gradient horizontal or vertical default false(vertical)
 ```
       
 ## Contributing
