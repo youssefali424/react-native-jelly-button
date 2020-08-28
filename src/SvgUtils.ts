@@ -6,8 +6,16 @@ import Animated, {
   sub,
   sqrt,
   pow,
+  cond,
+  lessThan,
+  greaterThan,
+  concat,
+  eq,
+  and,
+  or,
 } from 'react-native-reanimated';
-import { string, atan2 } from 'react-native-redash';
+import { string, atan2, minus } from 'react-native-redash';
+import { State } from 'react-native-gesture-handler';
 
 const TAU = Math.PI * 2;
 
@@ -318,3 +326,339 @@ export const close = (commands: Animated.Node<string>[]) => {
 };
 
 export default arcToBezier;
+
+const topEdgeY = (
+  cy: number,
+  xStart: number,
+  xEnd: number,
+  borderMargin: number,
+  state: Animated.Value<State>,
+  x: Animated.Value<number>,
+  y: Animated.Node<number>
+) =>
+  cond(
+    and(
+      or(eq(state, State.BEGAN), eq(state, State.ACTIVE)),
+      and(
+        greaterThan(x, xStart - borderMargin),
+        lessThan(x, xEnd + borderMargin)
+      )
+    ),
+    add(cy, minus(y)),
+    cy
+  );
+const bottomEdgeY = (
+  cy: number,
+  xStart: number,
+  xEnd: number,
+  borderMargin: number,
+  state: Animated.Value<State>,
+  x: Animated.Value<number>,
+  y: Animated.Node<number>
+) => {
+  return cond(
+    and(
+      or(eq(state, State.BEGAN), eq(state, State.ACTIVE)),
+      and(
+        greaterThan(x, xStart - borderMargin),
+        lessThan(x, xEnd + borderMargin)
+      )
+    ),
+    add(cy, y),
+    cy
+  );
+};
+export const getPath = (
+  borderRadius: number,
+  buttonWidth: number,
+  buttonHeight: number,
+  x: Animated.Value<number>,
+  state: Animated.Value<State>,
+  y: Animated.Node<number>
+) => {
+  const curveWidth = (buttonWidth * 100) / 100;
+  const curveHeight = (buttonHeight * 20) / 100;
+  const borderMargin = borderRadius * 0.5;
+  const commands: Animated.Node<string>[] = [];
+  const width = buttonWidth;
+  const height = buttonHeight + curveHeight;
+  const curveStart = cond(
+    lessThan(x, curveWidth / 2),
+    borderRadius / 2,
+    sub(x, curveWidth / 2)
+  );
+  const curveEnd = cond(
+    greaterThan(x, width - curveWidth),
+    width - borderRadius,
+    add(curveStart, curveWidth)
+  );
+  moveTo(commands, 0, curveHeight + borderRadius);
+  const curvesTopLeft = arcToBezier({
+    cx: borderRadius,
+    cy: curveHeight,
+    rx: borderRadius,
+    ry: borderRadius,
+    px: 0,
+    py: curveHeight + borderRadius,
+    xAxisRotation: 0,
+    largeArcFlag: 0,
+    sweepFlag: 1,
+  });
+  let finalPointTopLeft: Point = { x: 0, y: curveHeight + borderRadius };
+  curvesTopLeft.forEach((val) => {
+    finalPointTopLeft = {
+      x: val.x2,
+      y: val.y2,
+    };
+    curveToNoSmooth(commands, {
+      to: {
+        x: val.x1,
+        y: topEdgeY(val.y1, val.x1, val.x, borderMargin, state, x, y),
+      },
+      c1: {
+        x: val.x2,
+        y: topEdgeY(val.y2, val.x1, val.x, borderMargin, state, x, y),
+      },
+      c2: {
+        x: val.x,
+        y: topEdgeY(val.y, val.x2, val.x, borderMargin, state, x, y),
+      },
+    });
+  });
+  const curvesTopRight = arcToBezier({
+    cx: width,
+    cy: curveHeight + borderRadius,
+    rx: borderRadius,
+    ry: borderRadius,
+    px: width - borderRadius,
+    py: curveHeight,
+    xAxisRotation: 0,
+    largeArcFlag: 0,
+    sweepFlag: 1,
+  });
+  const finalPointTopRight: Point =
+    curvesTopRight.length > 10
+      ? {
+          x: curvesTopRight[curvesTopRight.length - 1].x1,
+          y: cond(
+            greaterThan(x, width - borderRadius * 2),
+            add(curvesTopRight[curvesTopRight.length - 1].y1, y),
+            curvesTopRight[curvesTopRight.length - 1].y1
+          ),
+        }
+      : {
+          x: width - borderRadius,
+          y: cond(
+            greaterThan(x, width - borderRadius * 2),
+            add(curveHeight, minus(y)),
+            curveHeight
+          ),
+        };
+  curveTo(
+    commands,
+    {
+      to: {
+        x: curveStart,
+        y: curveHeight,
+      },
+      c1: {
+        x: x,
+        y: minus(sub(y, curveHeight)),
+      },
+      c2: {
+        x: width - borderRadius,
+        y: curveHeight,
+      },
+    },
+    finalPointTopLeft,
+    finalPointTopRight
+  );
+
+  curvesTopRight.forEach((val, i) => {
+    const xStart = i === 0 ? width - borderRadius * 2 : width;
+    // console.log(val.x2, ' ', val.x);
+    curveToNoSmooth(commands, {
+      to: {
+        x: val.x1,
+        y: topEdgeY(
+          val.y1,
+          Math.min(val.x1, xStart),
+          val.x,
+          borderMargin,
+          state,
+          x,
+          y
+        ),
+      },
+      c1: {
+        x: val.x2,
+        y: topEdgeY(
+          val.y2,
+          Math.min(val.x1, xStart),
+          val.x,
+          borderMargin,
+          state,
+          x,
+          y
+        ),
+      },
+      c2: {
+        x: val.x,
+        y: topEdgeY(val.y, val.x1, val.x, borderMargin, state, x, y),
+      },
+    });
+  });
+
+  lineTo(commands, width, height - borderRadius);
+  const curvesBottomRight = arcToBezier({
+    cx: width - borderRadius,
+    cy: height,
+    rx: borderRadius,
+    ry: borderRadius,
+    px: width,
+    py: height - borderRadius,
+    xAxisRotation: 0,
+    largeArcFlag: 0,
+    sweepFlag: 1,
+  });
+  const finalPointBottomRight: Point =
+    curvesBottomRight.length > 0
+      ? {
+          x: curvesBottomRight[curvesBottomRight.length - 1].x1,
+          y: cond(
+            and(
+              greaterThan(x, width - borderRadius * 2),
+              or(eq(state, State.BEGAN), eq(state, State.ACTIVE))
+            ),
+            add(curvesBottomRight[curvesBottomRight.length - 1].y1, y),
+            curvesBottomRight[curvesBottomRight.length - 1].y1
+          ),
+        }
+      : {
+          x: width - borderRadius,
+          y: cond(
+            greaterThan(x, width - borderRadius * 2),
+            add(height, y),
+            height
+          ),
+        };
+  curvesBottomRight.forEach((val, i) => {
+    const xStart = i === 0 ? width - borderRadius * 1.5 : 0;
+    curveToNoSmooth(commands, {
+      to: {
+        x: val.x1,
+        y: bottomEdgeY(val.y1, xStart, val.x, borderMargin, state, x, y),
+      },
+      c1: {
+        x: val.x2,
+        y: bottomEdgeY(val.y2, val.x, val.x1, borderMargin, state, x, y),
+      },
+      c2: {
+        x: val.x,
+        y: bottomEdgeY(val.y, val.x, val.x2, borderMargin, state, x, y),
+      },
+    });
+  });
+  const curvesBottomLeft = arcToBezier({
+    cx: 0,
+    cy: height - borderRadius,
+    rx: borderRadius,
+    ry: borderRadius,
+    px: borderRadius,
+    py: height,
+    xAxisRotation: 0,
+    largeArcFlag: 0,
+    sweepFlag: 1,
+  });
+  const finalPointBottomLeft: Point =
+    curvesBottomLeft.length > 0
+      ? {
+          x: curvesBottomLeft[curvesBottomLeft.length - 1].x1,
+          y: cond(
+            and(
+              lessThan(x, borderRadius * 2),
+              or(eq(state, State.BEGAN), eq(state, State.ACTIVE)),
+              greaterThan(y, 0)
+            ),
+            add(curvesBottomLeft[curvesBottomLeft.length - 1].y1, y),
+            curvesBottomLeft[curvesBottomLeft.length - 1].y1
+          ),
+        }
+      : {
+          x: borderRadius,
+          y: cond(lessThan(x, borderRadius * 2), add(height, y), height),
+        };
+
+  curveTo(
+    commands,
+    {
+      to: {
+        x: curveEnd,
+        y: height,
+      },
+      c1: {
+        x: x,
+        y: add(height, y),
+      },
+      c2: {
+        x: borderRadius,
+        y: cond(
+          and(
+            lessThan(x, borderRadius * 1.5),
+            or(eq(state, State.BEGAN), eq(state, State.ACTIVE))
+          ),
+          add(height, y),
+          height
+        ),
+      },
+    },
+    finalPointBottomRight,
+    finalPointBottomLeft
+  );
+  // lineTo(commands, borderRadius, height);
+  curvesBottomLeft.forEach((val, i) => {
+    const xStart = i === 0 ? borderRadius * 1.5 : 0;
+    curveToNoSmooth(commands, {
+      to: {
+        x: val.x1,
+        y: bottomEdgeY(
+          val.y1,
+          Math.min(val.x2, val.x1),
+          Math.max(val.x2, val.x1, xStart),
+          borderMargin,
+          state,
+          x,
+          y
+        ),
+      },
+      c1: {
+        x: val.x2,
+        y: bottomEdgeY(
+          val.y2,
+          Math.min(val.x1, val.x),
+          Math.max(val.x1, val.x, xStart / 2),
+          borderMargin,
+          state,
+          x,
+          y
+        ),
+      },
+      c2: {
+        x: val.x,
+        y: bottomEdgeY(
+          val.y,
+          Math.min(val.x2, val.x),
+          Math.max(val.x2, val.x),
+          borderMargin,
+          state,
+          x,
+          y
+        ),
+      },
+    });
+  });
+  lineTo(commands, 0, curveHeight + borderRadius);
+  close(commands);
+  const d = commands.reduce((acc, c) => concat(acc, c));
+  return d;
+};

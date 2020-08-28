@@ -1,6 +1,6 @@
 {
   "name": "react-native-jelly-button",
-  "version": "0.1.61",
+  "version": "0.1.7",
   "description": "a react native button with jelly effect",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
